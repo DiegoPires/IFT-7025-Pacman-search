@@ -88,14 +88,14 @@ def depthFirstSearch(problem):
     """
    
     nodesToSearchWithPath = util.Stack()
-    nodesSearched = []
+    nodesSearched = set()
     nodesToSearchWithPath.push( (problem.getStartState(), []))
 
     while not nodesToSearchWithPath.isEmpty():
         nodeToVisite, actionToThisNode = nodesToSearchWithPath.pop()
         
         if nodeToVisite not in nodesSearched:
-            nodesSearched.append(nodeToVisite)
+            nodesSearched.add(nodeToVisite)
 
             if problem.isGoalState(nodeToVisite):
                 return actionToThisNode
