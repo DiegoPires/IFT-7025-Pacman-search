@@ -72,28 +72,26 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-   
-    nodesToSearchWithPath = util.Stack()
+"""
+Generic method to resolve search problem
+"""
+def ResolverSearch(problem, typePath):
+    empthPath = []
+    priority = 0
+    nodesToSearchWithPath = typePath
     nodesSearched = set()
-    nodesToSearchWithPath.push( (problem.getStartState(), []))
+    
+    if isinstance(typePath, util.PriorityQueue):
+        nodesToSearchWithPath.push( (problem.getStartState(), empthPath, priority), priority)
+    else:
+        nodesToSearchWithPath.push( (problem.getStartState(), empthPath))
 
     while not nodesToSearchWithPath.isEmpty():
-        nodeToVisite, actionToThisNode = nodesToSearchWithPath.pop()
-        
+        if isinstance(typePath, util.PriorityQueue):
+            nodeToVisite, actionToThisNode, priorityToThisNode = nodesToSearchWithPath.pop()
+        else:
+            nodeToVisite, actionToThisNode = nodesToSearchWithPath.pop()
+
         if nodeToVisite not in nodesSearched:
             nodesSearched.add(nodeToVisite)
 
@@ -102,19 +100,38 @@ def depthFirstSearch(problem):
 
             for successor, action, stepCost in problem.getSuccessors(nodeToVisite):
                 independentActionToThisNode = actionToThisNode + [action]
-                nodesToSearchWithPath.push((successor, independentActionToThisNode))
+
+                if isinstance(typePath, util.PriorityQueue):
+                    independentPriorityToThisNode = priorityToThisNode + stepCost
+                    nodesToSearchWithPath.push((successor, independentActionToThisNode, independentPriorityToThisNode), independentPriorityToThisNode)
+                else:
+                    nodesToSearchWithPath.push((successor, independentActionToThisNode))
        
-    return []
+    return empthPath
 
+""" Search the deepest nodes in the search tree first.
+python2 pacman.py -l tinyMaze -p SearchAgent
+python2 pacman.py -l mediumMaze -p SearchAgent
+python2 pacman.py -l bigMaze -z .5 -p SearchAgent
+"""
+def depthFirstSearch(problem):
+    return ResolverSearch(problem, util.Stack())
+
+""" Search the shallowest nodes in the search tree first.
+python2 pacman.py -l mediumMaze -p SearchAgent -a fn=bfs
+python2 pacman.py -l bigMaze -p SearchAgent -a fn=bfs -z .5 --frameTime 0
+python2 eightpuzzle.py
+"""
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    return ResolverSearch(problem, util.Queue())
+    
+""" Search the node of least total cost first.
+python2 pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
+python2 pacman.py -l mediumDottedMaze -p StayEastSearchAgent
+python2 pacman.py -l mediumScaryMaze -p StayWestSearchAgent
+"""
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return ResolverSearch(problem, util.PriorityQueue())
 
 def nullHeuristic(state, problem=None):
     """
