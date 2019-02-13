@@ -72,10 +72,17 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
 """
 Generic method to resolve search problem
 """
-def ResolverSearch(problem, typePath):
+def ResolverSearch(problem, typePath, heuristic=nullHeuristic):
     empthPath = []
     priority = 0
     nodesToSearchWithPath = typePath
@@ -102,7 +109,7 @@ def ResolverSearch(problem, typePath):
                 independentActionToThisNode = actionToThisNode + [action]
 
                 if isinstance(typePath, util.PriorityQueue):
-                    independentPriorityToThisNode = priorityToThisNode + stepCost
+                    independentPriorityToThisNode = priorityToThisNode + stepCost + heuristic(nodeToVisite, problem)
                     nodesToSearchWithPath.push((successor, independentActionToThisNode, independentPriorityToThisNode), independentPriorityToThisNode)
                 else:
                     nodesToSearchWithPath.push((successor, independentActionToThisNode))
@@ -133,18 +140,11 @@ python2 pacman.py -l mediumScaryMaze -p StayWestSearchAgent
 def uniformCostSearch(problem):
     return ResolverSearch(problem, util.PriorityQueue())
 
-def nullHeuristic(state, problem=None):
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
-
+""" Search the node that has the lowest combined cost and heuristic first.
+python2 pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+"""
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
+    return ResolverSearch(problem, util.PriorityQueue(), heuristic)
 
 # Abbreviations
 bfs = breadthFirstSearch
