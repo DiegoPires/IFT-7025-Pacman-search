@@ -86,7 +86,7 @@ def ResolverSearch(problem, typePath, heuristic=nullHeuristic):
     empthPath = []
     priority = 0
     nodesToSearchWithPath = typePath
-    nodesSearched = set()
+    nodesSearched = []
     
     if isinstance(typePath, util.PriorityQueue):
         nodesToSearchWithPath.push( (problem.getStartState(), empthPath, priority), priority)
@@ -99,13 +99,15 @@ def ResolverSearch(problem, typePath, heuristic=nullHeuristic):
         else:
             nodeToVisite, actionToThisNode = nodesToSearchWithPath.pop()
 
+        print nodeToVisite
+        if problem.isGoalState(nodeToVisite):
+            return actionToThisNode
+
         if nodeToVisite not in nodesSearched:
-            nodesSearched.add(nodeToVisite)
-
-            if problem.isGoalState(nodeToVisite):
-                return actionToThisNode
-
-            for successor, action, stepCost in problem.getSuccessors(nodeToVisite):
+            nodesSearched.append(nodeToVisite)
+            
+            successors = problem.getSuccessors(nodeToVisite)
+            for successor, action, stepCost in successors:
                 independentActionToThisNode = actionToThisNode + [action]
 
                 if isinstance(typePath, util.PriorityQueue):
